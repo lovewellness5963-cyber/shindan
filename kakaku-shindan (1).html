@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>あなたの価格設定タイプ診断</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Shippori+Mincho:wght@400;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1208;
+    --paper: #f5f0e8;
+    --warm: #c8a96e;
+    --accent: #8b4513;
+    --soft: #e8dcc8;
+    --muted: #7a6a55;
+    --highlight: #d4956a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Noto Serif JP', serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(200,169,110,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(139,69,19,0.08) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 48px 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    margin-bottom: 52px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.1s;
+  }
+
+  .header-eyebrow {
+    font-family: 'DM Serif Display', serif;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--warm);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .header h1 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 700;
+    line-height: 1.5;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+
+  .header h1 em {
+    font-style: italic;
+    color: var(--accent);
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15em;
+  }
+
+  .header-line {
+    width: 48px;
+    height: 2px;
+    background: var(--warm);
+    margin: 20px auto;
+  }
+
+  .header-sub {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  /* ── PROGRESS ── */
+  .progress-wrap {
+    margin-bottom: 36px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.3s;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  .progress-bar {
+    height: 3px;
+    background: var(--soft);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--warm), var(--highlight));
+    border-radius: 2px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ── QUESTION CARD ── */
+  .question-card {
+    background: white;
+    border: 1px solid rgba(200,169,110,0.3);
+    border-radius: 4px;
+    padding: 40px 36px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 20px rgba(26,18,8,0.06), 0 0 0 1px rgba(200,169,110,0.1);
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.4s;
+  }
+
+  .q-number {
+    font-family: 'DM Serif Display', serif;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--warm);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .q-text {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(16px, 3.5vw, 19px);
+    font-weight: 600;
+    line-height: 1.7;
+    color: var(--ink);
+    margin-bottom: 32px;
+  }
+
+  /* ── OPTIONS ── */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .option {
+    position: relative;
+    cursor: pointer;
+    border: 1.5px solid var(--soft);
+    border-radius: 3px;
+    padding: 16px 20px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink);
+    background: white;
+    transition: all 0.2s ease;
+    text-align: left;
+    font-family: 'Noto Serif JP', serif;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .option:hover {
+    border-color: var(--warm);
+    background: #fdfaf5;
+    transform: translateX(3px);
+  }
+
+  .option.selected {
+    border-color: var(--accent);
+    background: #fdf8f0;
+    color: var(--accent);
+  }
+
+  .option-mark {
+    width: 20px;
+    height: 20px;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    opacity: 0.5;
+  }
+
+  .option.selected .option-mark {
+    opacity: 1;
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .option.selected .option-mark::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: white;
+    border-radius: 50%;
+  }
+
+  /* ── NAV ── */
+  .nav {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .btn {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    padding: 12px 28px;
+    border-radius: 2px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+  }
+
+  .btn-primary {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .btn-primary:hover {
+    background: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:disabled {
+    background: var(--soft);
+    color: var(--muted);
+    cursor: default;
+    transform: none;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--soft);
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--warm);
+    color: var(--ink);
+  }
+
+  /* ── RESULT ── */
+  .result-wrap {
+    display: none;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards;
+  }
+
+  .result-wrap.show {
+    display: block;
+  }
+
+  .result-badge {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .result-type-label {
+    font-family: 'DM Serif Display', serif;
+    font-size: 11px;
+    letter-spacing: 0.35em;
+    color: var(--warm);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .result-type-name {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(26px, 6vw, 36px);
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+
+  .result-emoji {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .result-card {
+    background: white;
+    border: 1px solid rgba(200,169,110,0.3);
+    border-radius: 4px;
+    padding: 36px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 20px rgba(26,18,8,0.06);
+  }
+
+  .result-section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--warm);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--soft);
+  }
+
+  .result-desc {
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--ink);
+    margin-bottom: 24px;
+  }
+
+  .result-traits {
+    list-style: none;
+    margin-bottom: 24px;
+  }
+
+  .result-traits li {
+    font-size: 13.5px;
+    line-height: 1.7;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--soft);
+    color: var(--ink);
+    display: flex;
+    gap: 10px;
+  }
+
+  .result-traits li::before {
+    content: '◆';
+    color: var(--warm);
+    font-size: 8px;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  .result-advice {
+    background: #fdf8f0;
+    border-left: 3px solid var(--warm);
+    padding: 20px;
+    border-radius: 0 3px 3px 0;
+    font-size: 13.5px;
+    line-height: 1.8;
+    color: var(--ink);
+  }
+
+  .share-section {
+    text-align: center;
+    padding: 32px;
+    background: var(--ink);
+    border-radius: 4px;
+    margin-top: 24px;
+  }
+
+  .share-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 14px;
+    color: var(--paper);
+    margin-bottom: 6px;
+  }
+
+  .share-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    letter-spacing: 0.05em;
+  }
+
+  .btn-share {
+    background: #1da1f2;
+    color: white;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 13px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin: 4px;
+  }
+
+  .btn-share:hover { opacity: 0.85; }
+
+  .btn-retry {
+    background: transparent;
+    color: var(--paper);
+    border: 1px solid var(--muted);
+    font-family: 'Noto Serif JP', serif;
+    font-size: 12px;
+    padding: 10px 20px;
+    border-radius: 2px;
+    cursor: pointer;
+    margin-top: 12px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    transition: border-color 0.2s;
+    letter-spacing: 0.05em;
+  }
+
+  .btn-retry:hover { border-color: var(--warm); }
+
+  /* ── BOOK CTA ── */
+  .book-cta {
+    background: linear-gradient(135deg, #1a1208 0%, #3a2510 100%);
+    border: 1px solid var(--warm);
+    border-radius: 4px;
+    padding: 36px;
+    margin-top: 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .book-cta::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,169,110,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .book-label {
+    font-family: 'DM Serif Display', serif;
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    color: var(--warm);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .book-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(17px, 4vw, 22px);
+    font-weight: 700;
+    color: var(--paper);
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+
+  .book-date {
+    font-size: 12px;
+    color: var(--warm);
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+  }
+
+  .book-desc {
+    font-size: 13px;
+    color: #b0a090;
+    line-height: 1.8;
+    margin-bottom: 24px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .btn-kindle {
+    display: inline-block;
+    background: var(--warm);
+    color: var(--ink);
+    font-family: 'Shippori Mincho', serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 14px 36px;
+    border-radius: 2px;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .btn-kindle:hover {
+    background: var(--highlight);
+    transform: translateY(-2px);
+  }
+
+  /* ── SNS SHARE SECTION ── */
+  .sns-section {
+    background: white;
+    border: 1px solid rgba(200,169,110,0.3);
+    border-radius: 4px;
+    padding: 32px;
+    margin-top: 20px;
+  }
+
+  .sns-section-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .sns-section-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  .sns-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  .sns-tab {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 12px;
+    padding: 7px 14px;
+    border-radius: 2px;
+    border: 1.5px solid var(--soft);
+    background: white;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.03em;
+  }
+
+  .sns-tab:hover { border-color: var(--warm); color: var(--ink); }
+
+  .sns-tab.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: #fdf8f0;
+    font-weight: 600;
+  }
+
+  .sns-post-wrap {
+    position: relative;
+  }
+
+  .sns-post-text {
+    width: 100%;
+    background: #fdfaf5;
+    border: 1.5px solid var(--soft);
+    border-radius: 3px;
+    padding: 16px;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--ink);
+    resize: none;
+    min-height: 180px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .sns-post-text:focus { border-color: var(--warm); }
+
+  .sns-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  .char-count {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .btn-copy {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 12px;
+    padding: 8px 20px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+  }
+
+  .btn-copy:hover { background: var(--accent); }
+  .btn-copy.copied { background: #4a7c4a; }
+
+  .sns-open-btn {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--warm);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+    cursor: pointer;
+    background: none;
+    border-left: none;
+    border-top: none;
+    border-right: none;
+    font-family: 'Noto Serif JP', serif;
+    padding: 0;
+  }
+
+  .sns-open-btn:hover { border-bottom-color: var(--warm); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-slide {
+    animation: fadeUp 0.45s ease both;
+  }
+
+  /* intro screen */
+  .intro {
+    text-align: center;
+    padding: 20px 0 40px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.2s;
+  }
+
+  .intro-icon {
+    font-size: 52px;
+    margin-bottom: 24px;
+    display: block;
+  }
+
+  .intro-body {
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--muted);
+    margin-bottom: 32px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .intro-tag {
+    display: inline-block;
+    font-size: 11px;
+    color: var(--accent);
+    border: 1px solid var(--warm);
+    padding: 3px 10px;
+    border-radius: 1px;
+    margin: 3px;
+    letter-spacing: 0.05em;
+  }
+
+  .tags-row {
+    margin-bottom: 28px;
+  }
+
+  .btn-start {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Shippori Mincho', serif;
+    font-size: 15px;
+    padding: 16px 48px;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    transition: all 0.25s;
+  }
+
+  .btn-start:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .q-time {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 10px;
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- INTRO -->
+  <div id="introScreen">
+    <div class="header">
+      <div class="header-eyebrow">Price Setting Quiz</div>
+      <h1>あなたの<em>価格設定</em>タイプは？</h1>
+      <div class="header-line"></div>
+    </div>
+    <div class="intro">
+      <span class="intro-icon">💎</span>
+      <div class="tags-row">
+        <span class="intro-tag">ヨガ講師</span>
+        <span class="intro-tag">ピラティス</span>
+        <span class="intro-tag">フィットネス</span>
+        <span class="intro-tag">セラピスト</span>
+        <span class="intro-tag">カルチャースクール</span>
+      </div>
+      <p class="intro-body">
+        「相場より高く取れない…」<br>
+        「値上げしたらお客さんが離れそう」<br>
+        そんな悩みの<strong>根本にある思い込み</strong>がわかります。<br><br>
+        5問・約2分で診断できます。
+      </p>
+      <button class="btn-start" onclick="startQuiz()">診断をはじめる</button>
+      <p class="q-time">全5問 ／ 約2分</p>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quizScreen" style="display:none;">
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span id="progressText">Question 1 / 5</span>
+        <span id="progressPct">0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="question-card" id="questionCard">
+      <div class="q-number" id="qNumber">Question 01</div>
+      <div class="q-text" id="qText"></div>
+      <div class="options" id="optionsWrap"></div>
+    </div>
+
+    <div class="nav">
+      <button class="btn btn-ghost" id="backBtn" onclick="prevQ()" style="display:none">← もどる</button>
+      <button class="btn btn-primary" id="nextBtn" onclick="nextQ()" disabled>つぎへ →</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="resultScreen" class="result-wrap"></div>
+
+</div>
+
+<script>
+const questions = [
+  {
+    text: "レッスンや施術の料金を決めるとき、まず何を調べますか？",
+    options: [
+      { text: "近くの同業者や相場を調べて、その範囲に合わせる", scores: { A: 3, B: 0, C: 0, D: 1 } },
+      { text: "自分の経費（家賃・材料費など）を計算して決める", scores: { A: 0, B: 3, C: 1, D: 0 } },
+      { text: "自分が提供する価値や変化をベースに考える", scores: { A: 0, B: 0, C: 3, D: 1 } },
+      { text: "なんとなく決めていて、深く考えたことがない", scores: { A: 1, B: 1, C: 0, D: 3 } },
+    ]
+  },
+  {
+    text: "「高すぎる」と言われたら、あなたはどう感じますか？",
+    options: [
+      { text: "すぐ値下げしたくなる（断られるのが怖い）", scores: { A: 2, B: 1, C: 0, D: 2 } },
+      { text: "「そうかも…」と自信をなくしてしまう", scores: { A: 1, B: 2, C: 0, D: 2 } },
+      { text: "「この人には合わない」と思い、動じない", scores: { A: 0, B: 0, C: 3, D: 0 } },
+      { text: "モヤモヤしながらも値段を据え置く", scores: { A: 1, B: 1, C: 1, D: 1 } },
+    ]
+  },
+  {
+    text: "値上げを検討したとき、一番大きかった不安は？",
+    options: [
+      { text: "「お客さんが来なくなるかも」", scores: { A: 3, B: 0, C: 0, D: 1 } },
+      { text: "「自分にそれだけの価値があるの？」", scores: { A: 0, B: 1, C: 0, D: 3 } },
+      { text: "「周りと比べて高くなりすぎる」", scores: { A: 2, B: 1, C: 0, D: 1 } },
+      { text: "とくに不安を感じず、自分の基準で決めている", scores: { A: 0, B: 0, C: 3, D: 0 } },
+    ]
+  },
+  {
+    text: "理想のお客さんに来てもらうために、どんな行動をしていますか？",
+    options: [
+      { text: "値段を下げてハードルを低くする", scores: { A: 3, B: 0, C: 0, D: 1 } },
+      { text: "サービス内容を増やして「お得感」を出す", scores: { A: 1, B: 3, C: 0, D: 0 } },
+      { text: "世界観やコンセプトを発信して共感を集める", scores: { A: 0, B: 0, C: 3, D: 1 } },
+      { text: "とくに意識した行動はできていない", scores: { A: 1, B: 0, C: 0, D: 3 } },
+    ]
+  },
+  {
+    text: "あなたが「稼ぐこと」についてのイメージに近いのは？",
+    options: [
+      { text: "稼ぐのは少し「がめつい」ような気がする", scores: { A: 1, B: 0, C: 0, D: 3 } },
+      { text: "コツコツ積み上げれば、いつか報われると思う", scores: { A: 0, B: 3, C: 0, D: 1 } },
+      { text: "好きなことでしっかり稼ぐのは当然のことだ", scores: { A: 0, B: 0, C: 3, D: 0 } },
+      { text: "稼げたらいいけど、強く主張するのは苦手", scores: { A: 3, B: 0, C: 0, D: 1 } },
+    ]
+  }
+];
+
+const results = {
+  A: {
+    emoji: "🌊",
+    name: "相場追随タイプ",
+    subtitle: "周りが基準になってしまっている",
+    desc: "価格を決めるとき、真っ先に「相場」や「周りの同業者」を確認してしまうのがこのタイプです。市場リサーチ自体は大切ですが、それがそのまま「自分の価格」になってしまうと、自分の価値を市場に決めてもらっていることになります。",
+    traits: [
+      "競合と同じ価格帯から外れることに強い不安を感じる",
+      "「自分だけ高くしたら選ばれない」という思い込みがある",
+      "値下げしてでも集客しようとしてしまう",
+    ],
+    advice: "◎ 次のステップ\n「相場」は参考情報に過ぎません。あなたのレッスンで得られる「変化」や「体験」に目を向けてみてください。同じ価格なら、あなたを選ぶ理由を増やすことが先決です。"
+  },
+  B: {
+    emoji: "🔢",
+    name: "コスト積算タイプ",
+    subtitle: "経費ベースで計算しているが、価値が抜けている",
+    desc: "家賃・材料費・時間コストなどを足し算して価格を出すタイプです。損をしない計算はできているものの、「お客さんにとっての価値」が反映されていないため、提供している価値に比べて低く設定されがちです。",
+    traits: [
+      "価格に「根拠」があることで安心感を得ている",
+      "サービス内容を増やすことで価格を正当化しようとする",
+      "感情的な部分（自己評価）が低い傾向がある",
+    ],
+    advice: "◎ 次のステップ\nコストを回収するだけの価格から、「お客さんの人生にどんな変化をもたらすか」を価格の根拠にシフトしてみましょう。変化の大きさに比例して価格を設定することができます。"
+  },
+  C: {
+    emoji: "👑",
+    name: "価値軸タイプ",
+    subtitle: "自分の価格を自分で決められている",
+    desc: "市場や原価ではなく、「自分が提供する価値と変化」を基準に価格を設定できているタイプです。値上げに対するメンタルブロックも少なく、理想のお客さんに絞って選ばれる仕組みを作ることができます。",
+    traits: [
+      "「高い」と言われても自分の価値観を軸に判断できる",
+      "好きな仕事でしっかり稼ぐことに罪悪感がない",
+      "ブランドや世界観で差別化しようとする意識がある",
+    ],
+    advice: "◎ さらに伸ばすために\n価値軸はできています。あとはそれをお客さんに「伝わる言葉」で発信できているか確認しましょう。ブランドステートメントを言語化することで、より理想の人に届くようになります。"
+  },
+  D: {
+    emoji: "🌱",
+    name: "自己評価低迷タイプ",
+    subtitle: "価値はあるのに、自分を信じられていない",
+    desc: "スキルや経験は十分あるのに、「自分にその価格の価値があるのか？」という自己評価の低さが足を引っ張っているタイプです。稼ぐことへの罪悪感や遠慮が、適切な価格設定の妨げになっています。",
+    traits: [
+      "「まだまだ勉強が足りない」と感じて強く主張できない",
+      "稼ぐことをどこか「悪いこと」のように感じている",
+      "価格を上げる前に「もっと実績を積まないと」と思う",
+    ],
+    advice: "◎ 次のステップ\n実績やスキルではなく、「マインドセット」から変えることが最短ルートです。あなたのサービスで救われたお客さんの声を集めることから始めてみてください。外の声が自己評価を変えます。"
+  }
+};
+
+let answers = [];
+let current = 0;
+let selected = null;
+
+function startQuiz() {
+  document.getElementById('introScreen').style.display = 'none';
+  document.getElementById('quizScreen').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  selected = answers[current] !== undefined ? answers[current] : null;
+
+  document.getElementById('qNumber').textContent = `Question ${String(current+1).padStart(2,'0')}`;
+  document.getElementById('qText').textContent = q.text;
+  document.getElementById('progressText').textContent = `Question ${current+1} / ${questions.length}`;
+
+  const pct = Math.round((current / questions.length) * 100);
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  document.getElementById('backBtn').style.display = current > 0 ? 'inline-block' : 'none';
+  document.getElementById('nextBtn').textContent = current === questions.length - 1 ? '結果を見る ✨' : 'つぎへ →';
+  document.getElementById('nextBtn').disabled = selected === null;
+
+  const wrap = document.getElementById('optionsWrap');
+  wrap.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option' + (selected === i ? ' selected' : '');
+    btn.innerHTML = `<span class="option-mark"></span><span>${opt.text}</span>`;
+    btn.onclick = () => selectOption(i);
+    wrap.appendChild(btn);
+  });
+
+  const card = document.getElementById('questionCard');
+  card.classList.remove('fade-slide');
+  void card.offsetWidth;
+  card.classList.add('fade-slide');
+}
+
+function selectOption(i) {
+  selected = i;
+  answers[current] = i;
+  document.querySelectorAll('.option').forEach((el, idx) => {
+    el.classList.toggle('selected', idx === i);
+  });
+  document.getElementById('nextBtn').disabled = false;
+}
+
+function nextQ() {
+  if (selected === null) return;
+  answers[current] = selected;
+  if (current < questions.length - 1) {
+    current++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function prevQ() {
+  if (current > 0) {
+    current--;
+    renderQuestion();
+  }
+}
+
+function calcResult() {
+  const totals = { A: 0, B: 0, C: 0, D: 0 };
+  answers.forEach((ans, qi) => {
+    const scores = questions[qi].options[ans].scores;
+    Object.keys(scores).forEach(k => totals[k] += scores[k]);
+  });
+  return Object.entries(totals).sort((a,b) => b[1]-a[1])[0][0];
+}
+
+// SNS投稿文テンプレート（タイプ別）
+const snsTemplates = {
+  A: {
+    x: `💎 価格設定タイプ診断やってみました！
+
+私は「🌊 相場追随タイプ」でした。
+周りの価格が気になって、自分の価値で決められていなかったみたい…
+
+「値上げをしたらファンが増えた！」という本が6/2に出るそうで、気になっています📚
+
+#価格設定 #ヨガ講師 #フリーランス #値上げ`,
+    note: `📝 【価格設定タイプ診断】私は「相場追随タイプ」でした
+
+診断してみて気づいたのですが、私はずっと「相場から外れたら選ばれない」と思い込んでいたようです。
+
+自分の価値で価格を決めるってどういうことなんだろう、と考えるきっかけになりました。
+
+6月2日に出版される「値上げをしたらファンが増えた！」という書籍が、まさにこのテーマを扱っているみたいです。フィットネス・ヨガ・ピラティス講師さんにはとくに刺さる内容だと思います。
+
+気になる方はKindleでチェックしてみてください📚`,
+    instagram: `💎 価格設定タイプ診断、やってみました！
+
+結果は「🌊 相場追随タイプ」
+
+相場を調べてその範囲内で決めてしまう…
+自分では気づいていなかったけど、まさにこれでした。
+
+自分の価値で価格を決めるって難しいけど、
+6/2に出る「値上げをしたらファンが増えた！」という本を読んでみようと思います📚
+
+ヨガ・ピラティス・フィットネス講師さんにおすすめ✨
+
+#価格設定 #ヨガ講師 #ピラティス #フィットネス #値上げ #フリーランス #マインドセット`,
+    line: `💎 価格設定タイプ診断をやってみました！
+
+私は「相場追随タイプ」でした。
+周りの価格が気になって、自分の価値で決められていないことがわかりました😅
+
+6月2日に「値上げをしたらファンが増えた！」という本が出ます。
+ヨガ・ピラティス・フィットネス講師さん向けの内容で、価格設定のマインドをまるごと変えてくれそうです📚
+
+気になる方はぜひチェックしてみてください！`,
+    fb_page: `💎【価格設定タイプ診断】やってみたら「相場追随タイプ」でした
+
+診断を通じて、自分がいかに「相場」に縛られていたかを実感しました。
+
+フィットネス・ヨガ・ピラティス講師として働いている方、「市場相場より高くできない…」という悩みはありませんか？
+
+6月2日発売の「値上げをしたらファンが増えた！」は、まさにそのマインドを根本から変えるための一冊です。
+
+Kindleで読めますので、ぜひチェックしてみてください📚 リンクはプロフィールから。`,
+    fb_group: `みなさん、価格設定タイプ診断ってやってみましたか？
+
+私は「🌊 相場追随タイプ」という結果でした。
+競合の価格を調べて、その範囲に合わせようとしてしまうタイプです。
+
+これ、フリーランス講師あるあるじゃないかな…と思ってシェアします😅
+
+6月2日に「値上げをしたらファンが増えた！」という本が出ます。
+価格設定やブランディングを価値ベースで考えたい方にはぴったりの内容みたいです！
+
+同じ悩みを持っている方いたら、ぜひ一緒に読みましょう📖`,
+  },
+  B: {
+    x: `💎 価格設定タイプ診断やってみました！
+
+私は「🔢 コスト積算タイプ」でした。
+経費を計算して価格を出していたけど、提供する"価値"が全然入ってなかった…
+
+6/2発売「値上げをしたらファンが増えた！」気になっています📚
+
+#価格設定 #ヨガ講師 #フリーランス #値上げ`,
+    note: `📝 【価格設定タイプ診断】私は「コスト積算タイプ」でした
+
+家賃・材料費・時間を計算して価格を決める、いわゆる積み上げ方式。損はしていないけど、お客さんにとっての「価値」が価格に反映されていなかったことに気づきました。
+
+6月2日発売の「値上げをしたらファンが増えた！」は、価値ベースの価格設定へシフトするためのヒントが詰まっているみたいです。フィットネス・ヨガ・ピラティス講師さんにおすすめです📚`,
+    instagram: `💎 価格設定タイプ診断の結果は…
+
+「🔢 コスト積算タイプ」！
+
+経費を足し算して価格を決めていたけど、
+それって"損しない価格"であって
+"価値に見合った価格"じゃなかった。
+
+6/2発売「値上げをしたらファンが増えた！」
+読んでみます📚
+
+#価格設定 #ピラティス #ヨガ #フィットネス #値上げ #フリーランス講師`,
+    line: `💎 価格設定タイプ診断の結果は「コスト積算タイプ」でした！
+
+経費を計算して価格を出していたけど、"価値"が抜けていたことに気づきました。
+
+6月2日に「値上げをしたらファンが増えた！」が発売されます。価格の考え方を根本から変えたい方にぴったりの本です📚 ぜひチェックしてみてください！`,
+    fb_page: `💎【価格設定タイプ診断】私は「コスト積算タイプ」でした
+
+コストを計算して価格を決めることは大事。でも、それだけだとお客さんにとっての「変化の価値」が価格に入らないことがわかりました。
+
+6月2日発売「値上げをしたらファンが増えた！」は、ヨガ・ピラティス・フィットネス講師さんが価値ベースの価格設定に切り替えるための一冊です。Kindleでぜひ📚`,
+    fb_group: `みなさんは価格をどうやって決めていますか？
+
+私は「コスト積算タイプ」でした！経費を足して価格を出す方法、損はしないけど価値が伝わらない価格になっていたかも…
+
+6月2日発売「値上げをしたらファンが増えた！」を読んで、価値ベースの考え方にシフトしたいと思っています。同じ悩みの方いたらぜひシェアしてください！📖`,
+  },
+  C: {
+    x: `💎 価格設定タイプ診断やってみました！
+
+私は「👑 価値軸タイプ」でした✨
+自分の価値で価格を決める意識があるみたい。
+
+でも"伝わる言葉"での発信がまだできてるか不安…
+6/2発売「値上げをしたらファンが増えた！」でさらに磨きます📚
+
+#価格設定 #ヨガ講師 #フリーランス #値上げ`,
+    note: `📝 【価格設定タイプ診断】「価値軸タイプ」でした
+
+市場相場に縛られず、自分が提供する価値を基準に価格を決めているタイプという結果でした。
+
+でも診断のアドバイスにあったとおり、価値をきちんと「言葉」で伝えられているかどうかは別の話。
+
+6月2日発売「値上げをしたらファンが増えた！」で、ブランドの言語化をさらに深めていきたいと思っています📚`,
+    instagram: `💎 価格設定タイプ診断の結果は…
+
+「👑 価値軸タイプ」✨
+
+相場じゃなく、自分の価値で価格を決める意識はある。
+でもそれをちゃんと"言葉"で伝えられているか？
+それが次の課題だとわかりました。
+
+6/2発売「値上げをしたらファンが増えた！」で学びを深めます📚
+
+#価格設定 #ヨガ #ピラティス #ブランディング #フリーランス #値上げ`,
+    line: `💎 価格設定タイプ診断、結果は「価値軸タイプ」でした👑
+
+価値ベースで考える意識はある。でも伝わる言葉での発信がまだまだ…という気づきがありました。
+
+6月2日に「値上げをしたらファンが増えた！」が発売されます。ブランディングと言語化をさらに磨きたい方にもおすすめです📚`,
+    fb_page: `💎【価格設定タイプ診断】「価値軸タイプ」という結果でした
+
+自分の価値を基準に価格を設定できているタイプですが、それをお客さんに"伝わる言葉"で発信できているかどうかはまた別の課題。
+
+6月2日発売「値上げをしたらファンが増えた！」は、価値の言語化・ブランディングのヒントも詰まっています。さらに成長したい講師さんにもおすすめです📚`,
+    fb_group: `価格設定タイプ診断の結果、「価値軸タイプ」でした👑
+
+価値で価格を決める意識はできている…でも言葉での発信はまだまだかな、と感じました。
+
+6月2日に「値上げをしたらファンが増えた！」が出ます。ブランドを言語化していきたい方と一緒に読みたいです！みなさんの結果はどうでしたか？📖`,
+  },
+  D: {
+    x: `💎 価格設定タイプ診断やってみました！
+
+私は「🌱 自己評価低迷タイプ」でした…
+スキルはあるのに、自分の価値を信じられていないことが原因みたい。
+
+6/2発売「値上げをしたらファンが増えた！」で変わりたい📚
+
+#価格設定 #ヨガ講師 #フリーランス #値上げ #マインドセット`,
+    note: `📝 【価格設定タイプ診断】私は「自己評価低迷タイプ」でした
+
+技術や経験はあるのに、「自分にその価格の価値があるのか？」という疑問が常に頭にある。
+
+診断を受けて、価格の問題ではなくマインドセットの問題だということがよくわかりました。
+
+6月2日発売「値上げをしたらファンが増えた！」は、まさにそのメンタルブロックを解消するための本です。同じ悩みを持つフリーランス講師の方にぜひ読んでほしいです📚`,
+    instagram: `💎 価格設定タイプ診断の結果は…
+
+「🌱 自己評価低迷タイプ」
+
+技術はある。経験もある。
+でも「自分にその価格の価値があるの？」
+っていつも思ってしまう。
+
+これって価格の問題じゃなくてマインドの問題だったんだ、と気づきました。
+
+6/2発売「値上げをしたらファンが増えた！」読みます📚
+
+#マインドセット #価格設定 #ヨガ #ピラティス #フィットネス #値上げ #自己評価`,
+    line: `💎 価格設定タイプ診断の結果は「自己評価低迷タイプ」でした🌱
+
+スキルはあるのに、自分の価値を信じられていない…というタイプでした。価格の問題じゃなくてマインドの問題だったんですね。
+
+6月2日に「値上げをしたらファンが増えた！」が発売されます。メンタルブロックを解消したいフリーランス講師さんにぴったりです📚`,
+    fb_page: `💎【価格設定タイプ診断】私は「自己評価低迷タイプ」でした
+
+スキルも経験も十分あるのに、「自分にその価格の価値があるのか…」という不安がいつも先に来てしまう。
+
+診断を通じて、価格設定の問題の根っこはマインドセットにあることがわかりました。
+
+6月2日発売「値上げをしたらファンが増えた！」は、まさにこの自己評価のブロックを外すための一冊です。ヨガ・ピラティス・フィットネス講師さんにおすすめします📚`,
+    fb_group: `みなさん、価格設定で悩んだことありますか？
+
+私の診断結果は「自己評価低迷タイプ」でした🌱
+スキルはあるのに、自分の価値を信じきれていないんですよね…
+
+6月2日に「値上げをしたらファンが増えた！」が出ます。同じ悩みを抱えている方と一緒に読んで変わりたい！みなさんの診断結果もぜひ教えてください📖`,
+  }
+};
+
+let currentSnsTab = 'x';
+
+function showResult() {
+  document.getElementById('quizScreen').style.display = 'none';
+  const typeKey = calcResult();
+  const r = results[typeKey];
+  const sns = snsTemplates[typeKey];
+
+  const el = document.getElementById('resultScreen');
+  el.innerHTML = `
+    <div class="header" style="opacity:1;animation:none">
+      <div class="header-eyebrow">Your Result</div>
+      <h1>診断結果</h1>
+      <div class="header-line"></div>
+    </div>
+    <div class="result-badge">
+      <span class="result-emoji">${r.emoji}</span>
+      <div class="result-type-label">あなたのタイプ</div>
+      <div class="result-type-name">${r.name}</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px">${r.subtitle}</div>
+    </div>
+    <div class="result-card">
+      <div class="result-section-title">このタイプの特徴</div>
+      <p class="result-desc">${r.desc}</p>
+      <div class="result-section-title">あなたに当てはまりやすいこと</div>
+      <ul class="result-traits">
+        ${r.traits.map(t => `<li>${t}</li>`).join('')}
+      </ul>
+      <div class="result-section-title">アドバイス</div>
+      <div class="result-advice">${r.advice.replace(/\n/g, '<br>')}</div>
+    </div>
+
+    <!-- 書籍CTA -->
+    <div class="book-cta">
+      <div class="book-label">New Release · 6.2 Launch</div>
+      <div class="book-title">値上げをしたら<br>ファンが増えた！</div>
+      <div class="book-date">📅 2025年6月2日（月）Kindle発売</div>
+      <p class="book-desc">
+        価格設定・ブランディング・商品作り・マネーマインド・講座集客まで。<br>
+        フィットネス・ヨガ・ピラティス講師のための、価値で選ばれる仕事の作り方。
+      </p>
+      <a class="btn-kindle" href="https://www.amazon.co.jp/stores/author/B0C5XRQDRD/allbooks" target="_blank">📚 Kindleで購入する</a>
+    </div>
+
+    <!-- SNSシェアパネル -->
+    <div class="sns-section">
+      <div class="sns-section-title">📣 結果をシェアして仲間に届けよう</div>
+      <div class="sns-section-sub">各SNS用の投稿文をそのままコピーして使えます。書籍への誘導文も入っています✨</div>
+      <div class="sns-tabs" id="snsTabs">
+        <button class="sns-tab active" onclick="switchTab('x', this)">𝕏 (Twitter)</button>
+        <button class="sns-tab" onclick="switchTab('note', this)">note</button>
+        <button class="sns-tab" onclick="switchTab('instagram', this)">Instagram</button>
+        <button class="sns-tab" onclick="switchTab('line', this)">LINE</button>
+        <button class="sns-tab" onclick="switchTab('fb_page', this)">FB ページ</button>
+        <button class="sns-tab" onclick="switchTab('fb_group', this)">FB グループ</button>
+      </div>
+      <div class="sns-post-wrap">
+        <textarea class="sns-post-text" id="snsPostText" rows="8">${sns.x}</textarea>
+        <div class="sns-actions">
+          <span class="char-count" id="charCount">${sns.x.length}文字</span>
+          <button class="btn-copy" id="copyBtn" onclick="copyPost()">コピーする</button>
+        </div>
+        <button class="sns-open-btn" id="openSnsBtn" onclick="openSns()">→ 𝕏 を開く</button>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:28px">
+      <button class="btn-retry" style="color:var(--muted);border:1px solid var(--soft);background:transparent;font-family:'Noto Serif JP',serif;font-size:12px;padding:10px 20px;border-radius:2px;cursor:pointer;letter-spacing:.05em" onclick="retry()">もう一度診断する</button>
+    </div>
+  `;
+  el.classList.add('show');
+
+  // Store sns data for tab switching
+  window._currentSns = sns;
+  window._currentTypeKey = typeKey;
+
+  document.getElementById('snsPostText').addEventListener('input', function() {
+    document.getElementById('charCount').textContent = this.value.length + '文字';
+  });
+}
+
+function switchTab(tab, el) {
+  currentSnsTab = tab;
+  document.querySelectorAll('.sns-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+
+  const text = window._currentSns[tab];
+  document.getElementById('snsPostText').value = text;
+  document.getElementById('charCount').textContent = text.length + '文字';
+
+  const openBtn = document.getElementById('openSnsBtn');
+  const labels = {
+    x: '→ 𝕏 を開く',
+    note: '→ noteを開く',
+    instagram: '→ Instagramを開く',
+    line: '→ LINEを開く',
+    fb_page: '→ Facebookを開く',
+    fb_group: '→ Facebookグループを開く'
+  };
+  openBtn.textContent = labels[tab] || '→ 開く';
+
+  const copyBtn = document.getElementById('copyBtn');
+  copyBtn.textContent = 'コピーする';
+  copyBtn.classList.remove('copied');
+}
+
+function copyPost() {
+  const text = document.getElementById('snsPostText').value;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'コピーしました ✓';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'コピーする';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+function openSns() {
+  const urls = {
+    x: 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(document.getElementById('snsPostText').value),
+    note: 'https://note.com/',
+    instagram: 'https://www.instagram.com/',
+    line: 'https://line.me/',
+    fb_page: 'https://www.facebook.com/',
+    fb_group: 'https://www.facebook.com/groups/'
+  };
+  window.open(urls[currentSnsTab] || '#', '_blank');
+}
+
+function retry() {
+  answers = [];
+  current = 0;
+  selected = null;
+  document.getElementById('resultScreen').classList.remove('show');
+  document.getElementById('resultScreen').style.display = 'none';
+  document.getElementById('resultScreen').innerHTML = '';
+  document.getElementById('introScreen').style.display = 'block';
+}
+</script>
+</body>
+</html>
